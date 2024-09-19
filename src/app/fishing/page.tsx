@@ -28,26 +28,17 @@ const fishingSpots = [
 
 
 export default function Fishing() {
-  const [inventory, setInventory] = useState<UserInventory>({items: [], limit: 5}); // Inventário de peixes
-  const [currentActivity, setCurrentActivity] = useState<CurrentActivity | null>(null); // Estado para a atividade atual
+  const [inventory, setInventory] = useState<UserInventory>({items: [], limit: 5});
+  const [currentActivity, setCurrentActivity] = useState<CurrentActivity | null>(null);
   const router = useRouter();
   
-  const handleInventoryUpdate = (item: Item) => {
-    const itemToAdd: Item = {
-      index: item.index,
-      name: item.name,
-      type: item.index,
-      quantity: item.index}
-
-    setInventory(); // Atualiza o inventário com a quantidade de peixes
-  };
 
   const handleFishingClick = (activity: CurrentActivity) => {
     if (currentActivity) {
-      // Se já estiver pescando, parar a pesca
+
       setCurrentActivity(null);
     } else {
-      // Iniciar nova pesca
+
       setCurrentActivity(activity);
     }
   };
@@ -56,13 +47,13 @@ export default function Fishing() {
     <div className="flex flex-col items-center justify-center h-screen bg-gray-900 text-white">
       <h1 className="text-4xl font-bold mb-8">Fishing Page</h1>
       
-      {inventory && <p>Peixes pescados: {inventory.items}</p>}
+      {inventory && <p>Peixes pescados: {inventory.items.join(', ')}</p>}
       
       {/* Componente que atualiza o inventário */}
       <ActivityUpdater 
         activity={currentActivity} 
         startTime={Math.floor(Date.now() / 1000)} 
-        updateInventory={handleInventoryUpdate} 
+        updateInventory={setInventory}
       />
       
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
@@ -87,7 +78,7 @@ export default function Fishing() {
                     ? 'bg-red-500 hover:bg-red-700'
                     : 'bg-green-500 hover:bg-green-700'
                 } text-white font-bold py-2 px-4 rounded`} 
-                onClick={() => handleFishingClick({ index: 'fishing', name: spot.name, secsToAc: spot.secsToAc, startTime: Math.floor(Date.now() / 1000) })}
+                onClick={() => handleFishingClick({ index: 'fishing', name: spot.name, secsToAc: spot.secsToAc, startTime: Math.floor(Date.now() / 1000), item: { index: spot.fishes[0], name: spot.fishes[0], type: 'fish', quantity: 5 }})}
               >
                 {currentActivity?.name === spot.name ? 'Stop Fishing' : 'Fish'}
               </button>

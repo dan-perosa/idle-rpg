@@ -1,25 +1,32 @@
 import { useEffect, useState } from 'react';
 import { CurrentActivity } from '@/entities/currentActivity';
+import { UserInventory } from '@/entities/userInventory';
 
+interface ActivityUpdaterProps {
+  activity: CurrentActivity | null; // ou use a interface correspondente
+  startTime: number;
+  updateInventory: (inventory: UserInventory) => void;
+}
 
-export default function ActivityUpdater({ activity, startTime, updateInventory }) {
-  const [elapsedTime, setElapsedTime] = useState(0);  // Tempo decorrido em segundos
+export default function ActivityUpdater({ activity, startTime, updateInventory }: ActivityUpdaterProps) {
+  const [inventory, setInventory] = useState<UserInventory>({items: [], limit: 5});
+  const [elapsedTime, setElapsedTime] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
       const currentTime = Math.floor(Date.now() / 1000); // Pega o timestamp atual em segundos
       const timePassed = currentTime - startTime; // Calcula o tempo que passou desde que a pesca começou
       setElapsedTime(timePassed);
-
-      // Calcula quantos peixes foram pescados baseado no tempo passado e no tempo necessário por peixe
-      let fishCount = 0
+      
       if (activity) {
-          fishCount = Math.floor(timePassed / activity.secsToAc);
+        if (timePassed >= activity.secsToAc) {
+          const lastTimeUpdated = Math.floor(Date.now() / 1000);
+          setInventory(prev => {
+            return { ...prev, items: [...prev.items, activity.item] }
+          })
+        }
       }
-
-      // Atualiza o inventário com a quantidade de peixes pescados
-      updateInventory(fishCount);
-    }, 1000); // Atualiza a cada 1 segundo
+    }, 500);
 
     // Limpa o intervalo quando o componente é desmontado
     return () => clearInterval(interval);
